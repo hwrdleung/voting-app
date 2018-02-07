@@ -1,0 +1,31 @@
+<script src="/js/jquery.js"></script>
+<script src="/js/getPolls.js"></script>
+
+
+<h1>Welcome to myPOLLS!</h1>
+
+<br>
+
+{{#if user}}
+  <h2>Hello, {{user.username}}!</h2>
+{{/if}}
+
+{{#if success_msg}}
+  <div class="alert">{{success_msg}}</div>
+{{/if}}
+
+{{#if error_msg}}
+  <div class="alert">{{error_msg}}</div>
+{{/if}}
+
+{{#if error}}
+  <div class="alert">{{error}}</div>
+{{/if}}
+
+<br>
+  <h2>VOTE!</h2>
+<br>
+
+<ul class="display-polls">
+  <!--getPolls.js will populate this list-->
+</ul>

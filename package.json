@@ -1,0 +1,31 @@
+{
+  "name": "journal",
+  "version": "1.0.0",
+  "description": "A simple journaling app with user authentication",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "*",
+    "body-parser": "*",
+    "connect-flash": "*",
+    "cookie-parser": "^1.4.1",
+    "express": "*",
+    "express-handlebars": "*",
+    "express-messages": "*",
+    "express-session": "*",
+    "express-validator": "*",
+    "font-awesome": "^4.7.0",
+    "jquery": "^3.3.1",
+    "mongodb": "*",
+    "mongoose": "*",
+    "nodemon": "^1.14.11",
+    "passport": "*",
+    "passport-github": "^1.1.0",
+    "passport-http": "*",
+    "passport-local": "*"
+  }
+}

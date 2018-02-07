@@ -1,0 +1,24 @@
+
+
+ <h1 class="question">{{data.question}}</h1>
+
+<div class="results">
+<div class="poll-box">
+{{#each data.options}}
+  {{#if this.str}}
+  <ul class="poll-option">
+ <li><p>{{this.str}}</p></li>
+ <li><p>Votes: {{this.votes}}</p></li>
+
+ <a href="/poll/vote/{{../data._id}}?choice={{@key}}">VOTE</a>
+{{/if}}
+
+</ul>
+{{/each}}
+</div>
+<div class="poll-chart">
+
+<p>GRAPH WILL DISPLAY HERE</p>
+</div>
+
+</div>

@@ -1,0 +1,20 @@
+<script src="/js/jquery.js"></script>
+<script src="/js/profile.js"></script>
+
+<h1>PROFILE</h1>
+<br
+{{#if user}}
+  <h1>{{user.username}}</h1>
+  <h3>{{user.first}} {{user.last}}</h3>
+  <h3>{{user.email}}</h3>
+  <h3>{{user._id}}</h3>
+
+  <br>
+  {{user.pollsCreated}}
+{{/if}}
+
+
+<div class="display-polls">
+<h3>polls created</h3>
+  <!--data from userData.js will be appended here-->
+</div>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>My Polls</title>
+  <link rel="stylesheet" href="/css/style.css">
+
+</head>
+
+<body>
+  <!---TOP NAV BAR---->
+  <header class='nav-bar-top'>
+    <ul class="float-left">
+      <li><a href="/" class="nav-a">myPOLLS</a></li>
+    </ul>
+
+    <ul class="float-right">
+      {{#if user}}
+        <li><a href="/poll/create">Create a poll</a></li>
+        <li><a href="/users/profile">{{user.username}}</a></li>
+        <li><a href="/users/logout">Logout</a></li>
+      {{else}}
+        <li><a href="/users/register">Register</a></li>
+        <li><a href="/users/login">Login</a></li>
+      {{/if}}
+    </ul>
+  </header>
+
+<section>
+
+<div class="main">
+  {{#if success_msg}}
+    <div class="alert alert-success">{{success_msg}}</div>
+  {{/if}}
+
+  {{#if error_msg}}
+    <div class="alert alert-success">{{error_msg}}</div>
+  {{/if}}
+
+  {{#if error}}
+    <div class="alert alert-success">{{error}}</div>
+  {{/if}}
+    {{{body}}}
+</div>
+
+
+
+
+</section>
+<script src="/js/jquery.js"></script>
+<script src="/js/main.js"></script>
+
+
+</body>
+
+</html>
