@@ -10,7 +10,7 @@ var mongo = require('mongodb');
 var mongoose = require('mongoose');
 var passport = require("passport");
 var LocalStrategy = require("passport-local").Strategy;
-mongoose.connect('mongodb://localhost/voting-app');
+mongoose.connect('mongodb://noodles01:noodles0101@ds115768.mlab.com:15768/noodlesdb');
 var db = mongoose.connection;
 
 //Create instance of app
@@ -82,6 +82,6 @@ app.use('/users', users);
 app.use('/poll', poll);
 
 //Start server
-app.listen(3000, function(){
+app.listen(process.env.PORT || 3000, function(){
   console.log('Server started on port 3000');
 });
