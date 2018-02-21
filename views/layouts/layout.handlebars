@@ -21,34 +21,34 @@
         <li><a href="/users/logout">Logout</a></li>
       {{else}}
         <li><a href="/users/register">Register</a></li>
-        <li><a href="/users/login">Login</a></li>
+        <li><a href="/users/login">Log In</a></li>
       {{/if}}
     </ul>
   </header>
 
-<section>
+  <section>
+<div class="overlay">
+      {{#if success_msg}}
+        <div class="alert alert-success">{{success_msg}}</div>
+      {{/if}}
 
-<div class="main">
-  {{#if success_msg}}
-    <div class="alert alert-success">{{success_msg}}</div>
-  {{/if}}
+      {{#if error_msg}}
+        <div class="alert alert-success">{{error_msg}}</div>
+      {{/if}}
 
-  {{#if error_msg}}
-    <div class="alert alert-success">{{error_msg}}</div>
-  {{/if}}
+      {{#if error}}
+        <div class="alert alert-success">{{error}}</div>
+      {{/if}}
 
-  {{#if error}}
-    <div class="alert alert-success">{{error}}</div>
-  {{/if}}
-    {{{body}}}
+
+      {{{body}}}
+
+
+
 </div>
-
-
-
-
-</section>
-<script src="/js/jquery.js"></script>
-<script src="/js/main.js"></script>
+  </section>
+  <script src="/js/jquery.js"></script>
+  <script src="/js/main.js"></script>
 
 
 </body>

@@ -1,24 +1,70 @@
+<script src="/js/jquery.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
+<script type="text/javascript">
+  // Load the Visualization API and the corechart package.
+  google.charts.load('current', {
+    'packages': ['corechart']
+  });
 
- <h1 class="question">{{data.question}}</h1>
+  // Set a callback to run when the Google Visualization API is loaded.
+  google.charts.setOnLoadCallback(drawChart);
 
+  //Get poll id from url
+  var id = window.location.href.split('/');
+  id = id[id.length - 1];
+  console.log(id);
+
+  //getJSON data for this poll
+  var rows = [];
+  var title = "";
+  $.getJSON('../poll-data/' + id, function(data) {
+    for (var i = 0; i < data.results.length; i++) {
+      rows.push([data.results[i].name, data.results[i].votes]);
+      console.log([data.results[i].name, data.results[i].votes]);
+    }
+    title = data.question;
+    console.log(rows);
+  });
+
+  // Callback that creates and populates a data table,
+  // instantiates the pie chart, passes in the data and
+  // draws it.
+  console.log("chart.js");
+
+  function drawChart() {
+    // Create the data table.
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Option');
+    data.addColumn('number', 'Votes');
+    data.addRows(rows);
+
+    // Set chart options
+    var options = {
+      'title': title,
+      'width': 500,
+      'height': 400,
+      'colors': ['orange', '#ffc04c']
+    };
+
+    // Instantiate and draw our chart, passing in some options.
+    var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+    chart.draw(data, options);
+  }
+</script>
+
+<h1 class="question">{{data.question}}</h1>
 <div class="results">
-<div class="poll-box">
-{{#each data.options}}
-  {{#if this.str}}
-  <ul class="poll-option">
- <li><p>{{this.str}}</p></li>
- <li><p>Votes: {{this.votes}}</p></li>
-
- <a href="/poll/vote/{{../data._id}}?choice={{@key}}">VOTE</a>
-{{/if}}
-
-</ul>
-{{/each}}
-</div>
-<div class="poll-chart">
-
-<p>GRAPH WILL DISPLAY HERE</p>
-</div>
-
+  <div class="poll-box">
+    {{#each data.results}}
+    <ul class="display-polls ul-vote">
+      {{#if this}}
+          <li><span class="poll-option"><a href="/poll/vote/{{../data._id}}?choice={{this.option}}">{{this.name}}</span><span class="poll-votes">{{this.votes}}</span> </a>
+      {{/if}}
+    </ul>
+    {{/each}}
+  </div>
+  <div id="chart_div">
+    <!--chart displayed here-->
+  </div>
 </div>

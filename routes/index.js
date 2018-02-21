@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 //Get homepage
-router.get('/', function(request, response){
+router.get('/', function(request, response) {
   response.render('index');
 });
 

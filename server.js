@@ -50,8 +50,6 @@ app.use(expressValidator({
   }
 }));
 
-
-
 //Define path to index.js
 var index = require('./routes/index');
 var users = require('./routes/users');

@@ -8,18 +8,43 @@ router.get('/create', function(request, response) {
   response.render('create');
 });
 
+//Get poll data by adding poll id as param
+router.get('/poll-data/:id', function(request, response) {
+  var id = request.params.id;
+  Poll.findOne({_id: id}, function(err, poll) {
+    if(err){
+      console.log(err);
+    }
+    response.json(poll);
+  });
+})
+
+router.get('/delete/:id*', function(request, response) {
+  var id = request.params.id;
+  var username = request.user.username;
+
+  Poll.findOne({_id: id}, function(err, poll) {
+    if (err) {
+      console.log(err);
+    }
+    //Check: was this poll created by the current user?
+    if (poll.username === username) {
+      //delete this poll from database
+      poll.remove();
+      response.redirect('/users/profile');
+    }
+  });
+});
+
 //User clicks on a poll on the front page
 router.get('/view/:id', function(request, response) {
   //query database by inputs
   var id = request.params.id;
 
-  Poll.findOne({
-    "_id": id
-  }, function(err, data) {
+  Poll.findOne({_id: id}, function(err, data) {
     if (err) {
       console.log(err);
     }
-
     response.render('poll', {
       "data": data
     });
@@ -30,53 +55,38 @@ router.get('/view/:id', function(request, response) {
 router.get('/vote/:id*', function(request, response) {
   var id = request.params.id;
   var choice = request.query.choice;
-  //Check: is user logged in?
-  if (request.user) {
-    //user is logged in.
-    //Check: has user already voted on this poll?  Check user's pollsVoted array for id
-    User.findOne({
-      username: request.user.username
-    }, function(err, user) {
-      if (err) {
-        console.log(err);
+
+
+  Poll.findById(id, function(err, poll) {
+    if (err) {
+      console.log(err);
+    }
+
+    //User must log in to vote
+    if (request.user) {
+      var voters = poll.voters;
+      var userId = request.user._id.toString();
+      console.log("-------------------------", voters, userId);
+      console.log(voters.includes(userId));
+      if (!voters.includes(userId)) {
+        var results = poll.results[choice].votes;
+        results += 1;
+        poll.results[choice].votes = results;
+        poll.voters.push(request.user._id);
+        poll.save();
+      } else if (voters.includes(userId)) {
+        request.flash('success_msg', 'You can only vote once!');
       }
-      if (user.pollsVoted.includes(id)) {
-        //Found poll id in user's polls voted array.  Send alert.
-        console.log(request.user.username + " has already voted on this poll");
-      } else {
-        //User has not voted on this poll.
-        user.pollsVoted.push(id);
-        //Add this poll's id to user's pollsVoted array.
-        user.save(function(err) {
-          if (err) {
-            console.log(err);
-          }
-        });
-        //increment this poll option's votes by 1
-        Poll.findOne({
-          _id: id
-        }, function(err, poll) {
-          if (err) {
-            console.log(err);
-          }
-          poll.options[choice].votes = poll.options[choice].votes + 1;
-          poll.save(function(err) {
-            if (err) {
-              console.log(err);l
-            }
-          });
-        });
-      }
-    });
-  } else {
-    console.log("User must log in to vote.");
-    request.flash('success_msg', 'You must be logged in to vote!');
-  }
-  //Redirect to login page.
-  response.redirect('../view/' + id);
+    } else if (!request.user) {
+      request.flash('success_msg', 'You must log in to vote!');
+    }
+
+    response.redirect('/poll/view/' + id);
+  });
+
 });
 
-//Handle getJSON call from getPolls.js to display on Index
+//Handle getJSON call from getPolls.js to display all polls on Index
 router.get('/all', function(request, response) {
   //Get list of all polls from DATABASE
   Poll.find(function(err, data) {
@@ -85,51 +95,47 @@ router.get('/all', function(request, response) {
   //response.json
 });
 
+//User submits a form to create a poll
 router.post('/create', function(request, response) {
-  var question = request.body.question;
-  var option1 = request.body.option1;
-  var option2 = request.body.option2;
-  var option3 = request.body.option3;
-  var option4 = request.body.option4;
   var username = request.user.username;
   var date = new Date();
-  var month= date.getMonth()+1;
+  var month = date.getMonth() + 1;
   var day = date.getDate();
   var year = date.getFullYear();
   date = month + "/" + day + "/" + year;
-  //TODO: FORMAT TEXT.  FIX CAPITALIZATIONS AND PUNCUATIONS
+
+  var pollArr = [];
+  for (var arg in request.body) {
+    pollArr.push(request.body[arg]);
+  }
+  var question = pollArr.shift();
+  var results = [];
+  var obj = {};
+
+  //Create results array and use $set to save
+  for (var i = 0; i < pollArr.length; i++) {
+    obj = {
+      option: i,
+      name: pollArr[i],
+      votes: 0
+    }
+    results.push(obj);
+  }
 
   var newPoll = new Poll({
     "username": username,
     "date": date,
     "question": question,
-    "options": {
-      "option1": {
-        "str": option1,
-        "votes": 0
-      },
-      "option2": {
-        "str": option2,
-        "votes": 0
-      },
-      "option3": {
-        "str": option3,
-        "votes": 0
-      },
-      "option4": {
-        "str": option4,
-        "votes": 0
-      },
-    }
+    "voters": [],
+    "results": results
   });
 
-  //save new poll to polls collection
   newPoll.save(function(err) {
     if (err) {
       console.log(err);
     }
-    response.redirect('/');
   });
+  response.redirect('/');
 });
 
 

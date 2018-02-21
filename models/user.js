@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var bcrypt = require('bcryptjs'); //for hashing password
+var bcrypt = require('bcryptjs');
 
 //User Schema
 var UserSchema = mongoose.Schema({
@@ -29,9 +29,7 @@ var UserSchema = mongoose.Schema({
 
 var User = module.exports = mongoose.model('User', UserSchema);
 
-//This function encrypts the password.
-//This function is called from routes/users.js after
-    //after new user data has passed validation
+//When a new user registers:  encrypt password and save newUser to db
 module.exports.createUser = function(newUser, callback){
   //use bcrypt to hash password
   bcrypt.genSalt(10, function(err, salt){
@@ -39,10 +37,25 @@ module.exports.createUser = function(newUser, callback){
       //store hash in your password DB
       newUser.password = hash;
       newUser.save(function(){
-        console.log('New user is now registered')
+        console.log('New user is now registered');
       });
     });
   });
+}
+
+//Hash and save new password for an existing record in the db
+module.exports.updatePassword = function(user, callback){
+    //salt and hash new password
+    //save new hash to this user's document
+    bcrypt.genSalt(10, function(err, salt){
+      bcrypt.hash(user.password, salt, function(err, hash){
+        //store hash in your password DB
+        user.password = hash;
+        user.save(function(){
+          console.log("User's password has been updated");
+        });
+      });
+    });
 }
 
 //These functions are called in routes/users.js when user tries to login

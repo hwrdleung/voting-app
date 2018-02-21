@@ -1,20 +1,39 @@
 <script src="/js/jquery.js"></script>
 <script src="/js/profile.js"></script>
 
-<h1>PROFILE</h1>
-<br
+<h1>Profile</h1>
+
 {{#if user}}
-  <h1>{{user.username}}</h1>
-  <h3>{{user.first}} {{user.last}}</h3>
-  <h3>{{user.email}}</h3>
-  <h3>{{user._id}}</h3>
+
+
+<table>
+  <tr>
+    <th>Username:</th>
+    <td>{{user.username}}</td>
+  </tr>
+ <tr>
+   <th>Name:</th>
+   <td>{{user.first}} {{user.last}}</td>
+ </tr>
+ <tr>
+   <th>Email:</th>
+   <td>{{user.email}}</td>
+ </tr>
+ <tr>
+   <th>Account ID:</th>
+   <td>{{user.id}}</td>
+ </tr>
+ <tr>
+   <th>Password:</th>
+   <td><a href="/users/change-password">Change Password</a></td>
+ </tr>
+</table>
+
 
   <br>
-  {{user.pollsCreated}}
 {{/if}}
 
-
-<div class="display-polls">
-<h3>polls created</h3>
+<h3>Your Polls:</h3>
+<ul class="display-polls ul-profile">
   <!--data from userData.js will be appended here-->
-</div>
+</ul>

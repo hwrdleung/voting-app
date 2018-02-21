@@ -6,42 +6,96 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
 //Route to register.handlebars
-router.get('/register', function(request, response){
+router.get('/register', function(request, response) {
   response.render('register');
 });
 
 //Route to login.handlebars
-router.get('/login', function(request, response){
+router.get('/login', function(request, response) {
   response.render('login');
 });
 
 //Route to profile.handlebars
-router.get('/profile', function(request, response){
-    response.render('profile');
+router.get('/profile', function(request, response) {
+  response.render('profile');
 });
 
-router.get('/user-polls', function(request, response){
-  var username = request.user.username;
-  Poll.find({username: username}, function(err, data){
-    if(err){
-    console.log(err)
+//User clicks link on profile page to change password
+router.get('/change-password', function(request, response) {
+  response.render('changePassword');
+});
+
+//User submits form on changePassword page
+router.post('/change-password', function(request, response) {
+  var currentPassword = request.body.currentPassword;
+  var newPassword = request.body.newPassword;
+  var newPassword2 = request.body.newPassword2;
+
+  request.checkBody('newPassword', 'Please enter a new password').notEmpty();
+  request.checkBody('newPassword2', 'Please re-type your new password').equals(request.body.newPassword);
+
+  var errors = request.validationErrors();
+
+  if (errors) {
+    console.log(errors);
+    response.render('changePassword', {
+      errors: errors
+    });
+  } else {
+    //Check current password with the User.comparPassword function
+    User.comparePassword(currentPassword, request.user.password, function(err, isMatch) {
+      if(err){
+        console.log(err);
+      }
+      if(isMatch){
+        //if current matches current password, and new matches new2, then:
+        //update user's document with new password
+        User.findOne({_id: request.user._id}, function(err, user) {
+          if(err){
+            console.log(err);
+          }
+          user.password = newPassword;
+          User.updatePassword(user, function(err) {
+            if(err){
+              console.log(err);
+            }
+          });
+          console.log("New password has been saved");
+          response.render('profile');
+        });
+      }else if(!isMatch) {
+        response.json({
+          "password": "invalid"
+        });
+      }
+    });
   }
-  response.json(data);
+});
+
+router.get('/user-polls', function(request, response) {
+  var username = request.user.username;
+  Poll.find({
+    username: username
+  }, function(err, data) {
+    if (err) {
+      console.log(err);
+    }
+    response.json(data);
   });
 });
 
-router.get('/user-data', function(request, response){
+router.get('/user-data', function(request, response) {
   var username = request.user.username;
-  User.findOne({username: username}, function(err, data){
-    if(err){
-    console.log(err)
-  }
-  response.json(data);
+  User.findOne({username: username}, function(err, data) {
+    if (err) {
+      console.log(err);
+    }
+    response.json(data);
   });
 });
 
 //User registers new information from registration.handlebars
-router.post('/register', function(request, response){
+router.post('/register', function(request, response) {
   var first = request.body.first;
   var last = request.body.last;
   var username = request.body.username;
@@ -60,13 +114,12 @@ router.post('/register', function(request, response){
 
   var errors = request.validationErrors();
 
-  if(errors){
-    //If there are errors, display errors
+  if (errors) {
     console.log(errors);
     response.render('register', {
       errors: errors
     });
-  }else{
+  } else {
     //If there are no errors, then save new user's data to DATABASE
     //Route to index
     var newUser = new User({
@@ -79,8 +132,8 @@ router.post('/register', function(request, response){
 
     //createUser function is located in models.js
     //It encrypts the password and saves all user data to database
-    User.createUser(newUser, function(err, user){
-      if(err) throw err;
+    User.createUser(newUser, function(err, user) {
+      if (err) throw err;
       console.log(user);
     });
     //Registration successful -- redirect user to login page
@@ -90,7 +143,7 @@ router.post('/register', function(request, response){
 });
 
 //User clicks logout
-router.get('/logout', function(request, response){
+router.get('/logout', function(request, response) {
   request.logout();
   console.log('User logged out');
   request.flash('success_msg', 'You are logged out.');
@@ -99,44 +152,49 @@ router.get('/logout', function(request, response){
 
 
 passport.use(new LocalStrategy(
-  function(username, password, done){
-    User.getUserByUsername(username, function(err, user){
-      if(err) throw err;
-      if(!user){
-          console.log('Unknown User');
-          return done(null, false, {message: 'Invalid username'});
+  function(username, password, done) {
+    User.getUserByUsername(username, function(err, user) {
+      if (err) throw err;
+      if (!user) {
+        console.log('Unknown User');
+        return done(null, false, {
+          message: 'Invalid username'
+        });
       }
 
-      User.comparePassword(password, user.password, function(err, isMatch){
-        if(err) throw err;
-        if(isMatch){
+      User.comparePassword(password, user.password, function(err, isMatch) {
+        if (err) throw err;
+        if (isMatch) {
           return done(null, user);
         } else {
           console.log('Invalid password');
-          return done(null, false, {message: 'Invalid password'});
+          return done(null, false, {
+            message: 'Invalid password'
+          });
         }
       });
     });
   }));
 
-  passport.serializeUser(function(user, done){
-    done(null, user.id);
-  });
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
 
-  passport.deserializeUser(function(id, done){
-    User.getUserById(id, function(err, user){
-      done(err, user);
-    });
+passport.deserializeUser(function(id, done) {
+  User.getUserById(id, function(err, user) {
+    done(err, user);
   });
+});
 
 //User signs in with username and password from login.handlebars
 //AUTHENTICATE
 router.post('/login',
-  passport.authenticate('local', {successRedirect:'/', failureRedirect:'/users/login', failureFlash:true}),
-  function(request, response){
+  passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/users/login',
+    failureFlash: true
+  }),
+  function(request, response) {
     request.redirect('/');
   });
-
-
-
 module.exports = router;

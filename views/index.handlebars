@@ -1,13 +1,16 @@
 <script src="/js/jquery.js"></script>
 <script src="/js/getPolls.js"></script>
 
+<div id="circle-text"></div>
 
 <h1>Welcome to myPOLLS!</h1>
 
 <br>
 
 {{#if user}}
-  <h2>Hello, {{user.username}}!</h2>
+  <h3>Hello, {{user.username}}!</h3>
+  {{else}}
+  <h3>Log in to create polls and vote!</h3>
 {{/if}}
 
 {{#if success_msg}}
@@ -22,10 +25,8 @@
   <div class="alert">{{error}}</div>
 {{/if}}
 
-<br>
-  <h2>VOTE!</h2>
-<br>
-
+<h3 id="no-polls">There are no polls yet.  Be the first to create one!</h3>
 <ul class="display-polls">
   <!--getPolls.js will populate this list-->
+
 </ul>
